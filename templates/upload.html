@@ -8,7 +8,7 @@
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
     <h1 class="text-3xl font-bold mb-6 text-blue-700">Image Processor</h1>
-    <form method="post" enctype="multipart/form-data" class="bg-white p-8 rounded shadow-md w-96">
+    <form method="post" enctype="multipart/form-data" class="bg-white p-8 rounded shadow-md w-full max-w-md">
         <input type="file" name="image" accept="image/*" required class="mb-4 p-2 border rounded w-full">
 
         <div class="mb-4 flex items-center">
@@ -20,7 +20,7 @@
     <div id="preview-container" class="mt-8 hidden">
         <h2 class="text-xl font-semibold mb-4 text-blue-700">Image Preview</h2>
          <div id="loading-message" class="hidden">Processing...</div>
-        <img id="preview-image" src="" alt="Blurred Image Preview" class="max-w-md rounded border border-gray-300">
+        <img id="preview-image" src="" alt="Blurred Image Preview" class="max-w-full rounded border border-gray-300">
     </div>
     <script>
         let currentFile = null;
@@ -35,11 +35,6 @@
             const previewImage = document.getElementById('preview-image');
             const blurAmount = document.getElementById('blur').value;
             const loadingMessage = document.getElementById('loading-message');
-            
-            if (!currentFile) {
-                previewContainer.classList.add('hidden');
-                return;
-            }
             
             loadingMessage.classList.remove('hidden');
             previewImage.classList.add('hidden');
