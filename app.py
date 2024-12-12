@@ -95,28 +95,28 @@ def index():
 @app.route('/preview', methods=['POST'])
 def preview_blur():
     
-    data = request.get_json()
-    blur_amount = data.get('blur', 5)  # Default blur value
-    filename = data.get('filename')
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
 
-    upload_path =  os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    image_file = request.files['image']
+    if image_file.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+    
+    blur_amount = request.form.get('blur', type=int, default=5)
+
     try:
-        image=Image.open(upload_path)
+        image=Image.open(image_file)
         resized_image = reduce_image_size(image.copy())
 
         background_removed = remove_background_from_image(resized_image.copy())
-        blurred_image = blur_image(resized_image.copy(), blur_amount)
+        blurred_image = blur_image(resized_image.copy(), int(blur_amount))
         combined_image = combine_images(background_removed, blurred_image)
 
         
         
         base64_image = image_to_base64(combined_image)
 
-        output_filename = f'combined_{filename}'
-        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
-        combined_image.save(output_path)
-        
-        return jsonify({'image': base64_image,'output_file': output_filename})
+        return jsonify({'image': base64_image})
     except Exception as e:
         print(e)
         return jsonify({'error': 'Error processing image'}), 500
@@ -136,5 +136,4 @@ def favicon():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(debug=True,host="0.0.0.0")
