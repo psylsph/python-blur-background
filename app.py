@@ -127,8 +127,8 @@ def download_file(filename):
 
 @app.route('/view/<filename>')
 def view_file(filename):
-   	file_path = os.path.join(app.config['OUTPUT_FOLDER'], filename)
-   	return send_file(file_path)
+    file_path = os.path.join(app.config['OUTPUT_FOLDER'], filename)
+    return send_file(file_path)
 
 @app.route('/favicon.ico')
 def favicon():
