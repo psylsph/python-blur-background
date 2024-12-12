@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from PIL import Image, ImageFilter
 import os
 import io
 from rembg import remove
 import uuid
-
+import base64
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -17,6 +17,7 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
+
 
 def reduce_image_size(image, max_size=(800, 800)):
     """Reduces the image size while maintaining aspect ratio."""
@@ -40,6 +41,12 @@ def combine_images(foreground_image, background_image):
     """Combines the foreground (background removed) onto the background (blurred)."""
     background_image.paste(foreground_image, (0, 0), foreground_image)
     return background_image
+
+def image_to_base64(image):
+    buffered = io.BytesIO()
+    image.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+    return img_str
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -82,11 +89,38 @@ def index():
             
             except Exception as e:
              return f"Error processing image: {e}"
-
-
     return render_template('upload.html',blur=5)
 
+    
+@app.route('/preview', methods=['POST'])
+def preview_blur():
+    
+    data = request.get_json()
+    blur_amount = data.get('blur', 5)  # Default blur value
+    filename = data.get('filename')
 
+    upload_path =  os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    try:
+        image=Image.open(upload_path)
+        resized_image = reduce_image_size(image.copy())
+
+        background_removed = remove_background_from_image(resized_image.copy())
+        blurred_image = blur_image(resized_image.copy(), blur_amount)
+        combined_image = combine_images(background_removed, blurred_image)
+
+        
+        
+        base64_image = image_to_base64(combined_image)
+
+        output_filename = f'combined_{filename}'
+        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+        combined_image.save(output_path)
+        
+        return jsonify({'image': base64_image,'output_file': output_filename})
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Error processing image'}), 500
+    
 @app.route('/output/<filename>')
 def download_file(filename):
     return send_file(os.path.join(app.config['OUTPUT_FOLDER'], filename), as_attachment=True)
@@ -96,6 +130,11 @@ def view_file(filename):
    	file_path = os.path.join(app.config['OUTPUT_FOLDER'], filename)
    	return send_file(file_path)
 
+@app.route('/favicon.ico')
+def favicon():
+  return ""
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
