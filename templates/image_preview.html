@@ -25,14 +25,22 @@
             background-color: #4299e1;
             border-color: #4299e1;
         }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
-<body class="bg-blue-gradient flex flex-col items-center justify-center min-h-screen p-8">
-	<div class="container mx-auto max-w-3xl px-6 py-8 bg-white rounded-lg shadow-md border border-gray-200 space-y-4">
-		<h1 class="text-6xl font-bold mb-8 text-blue-700 text-center">Processed Image</h1>
-        <img src="/view/{{ output_file }}" alt="Combined Image" class="max-w-full mb-4 rounded border border-gray-300">
+<body class="bg-blue-gradient flex items-center justify-center min-h-screen font-sans">
+    <div class="container">
+		<h1 class="text-4xl font-bold mb-8 text-blue-700 text-center">Processed Image</h1>
+        <img src="/view/{{ output_file }}" alt="Combined Image" class="max-w-full rounded border border-gray-300">
         <br>
-        <a href="/output/{{ output_file }}" download="processed_image.png" class="btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Download Image</a>
+        <a href="/output/{{ output_file }}" download="processed_image.png" class="btn-primary w-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Download Image</a>
 	</div>
 </body>
 </html>

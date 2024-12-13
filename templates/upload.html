@@ -25,22 +25,59 @@
             background-color: #4299e1;
             border-color: #4299e1;
         }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        .input-group input[type="file"] {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .slider-container {
+            margin-bottom: 1rem;
+        }
+        .slider-label {
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        .slider-input {
+            width: 100%;
+        }
     </style>
 </head>
-<body class="bg-blue-gradient flex flex-col items-center justify-center min-h-screen font-sans">
-    <h1 class="text-6xl font-bold mb-8 text-white">Image Processor</h1>
-    <form method="post" enctype="multipart/form-data" class="bg-white p-8 rounded shadow-md w-full max-w-md space-y-4">
-        <input type="file" name="image" accept="image/*" required class="block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-        <div class="flex items-center space-x-4">
-            <label for="blur" class="text-lg font-medium text-gray-700">Blur Amount:</label>
-            <input type="range" name="blur" id="blur" min="0" max="30" step="1" value="{{ blur }}" class="flex-1" oninput="updatePreview(true)">
+<body class="bg-blue-gradient flex items-center justify-center min-h-screen font-sans">
+    <div class="container">
+        <h1 class="text-4xl font-bold mb-8 text-white text-center">Image Processor</h1>
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            <div class="input-group">
+                <label for="image">Upload Image:</label>
+                <input type="file" name="image" accept="image/*" required>
+            </div>
+            <div class="slider-container">
+                <div class="slider-label">Blur Amount:</div>
+                <input type="range" name="blur" id="blur" min="0" max="30" step="1" value="{{ blur }}" class="slider-input" oninput="updatePreview(true)">
+            </div>
+            <button type="submit" class="btn-primary w-full">Process Image</button>
+        </form>
+        <div id="preview-container" class="mt-8 hidden items-center justify-center">
+            <h2 class="text-xl font-semibold mb-4 text-blue-700" id="preview-label-text">Image Preview</h2>
+            <img id="preview-image" src="" alt="Blurred Image Preview" class="max-w-full rounded border border-gray-300">
         </div>
-        <button type="submit" class="btn-primary">Process Image</button>
-    </form>
-    <div id="preview-container" class="mt-8 hidden items-center justify-center">
-        <h2 class="text-xl font-semibold mb-4 text-blue-700" id="preview-label-text">Image Preview</h2>
-        <img id="preview-image" src="" alt="Blurred Image Preview" class="max-w-full rounded border border-gray-300">
     </div>
     <script>
         let currentFile = null;
