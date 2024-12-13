@@ -6,7 +6,7 @@
     <title>Image Processor</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen font-sans">
     <h1 class="text-3xl font-bold mb-6 text-blue-700">Image Processor</h1>
     <form method="post" enctype="multipart/form-data" class="bg-white p-8 rounded shadow-md w-full max-w-md">
         <input type="file" name="image" accept="image/*" required class="mb-4 p-2 border rounded w-full">
@@ -18,11 +18,13 @@
         <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Process Image</button>
     </form>
     <div id="preview-container" class="mt-8 hidden">
-        <h2 class="text-xl font-semibold mb-4 text-blue-700">Image Preview</h2>
+        <h2 class="text-xl font-semibold mb-4 text-blue-700" id="preview-label-text">Image Preview</h2>
         <img id="preview-image" src="" alt="Blurred Image Preview" class="max-w-full rounded border border-gray-300">
     </div>
     <script>
         let currentFile = null;
+        let isFetching = false;
+        let isLastPass = false;
         const fileInput = document.querySelector('input[type="file"]');
         fileInput.addEventListener('change', (event) => {
             currentFile = event.target.files[0];
@@ -30,15 +32,27 @@
         });
 
         function updatePreview(liveUpdate) {
+            if (isFetching) {
+                return;
+            }
+
             const previewContainer = document.getElementById('preview-container');
             const previewImage = document.getElementById('preview-image');
             const blurAmount = document.getElementById('blur').value;
+            document.getElementById('preview-label-text').innerHTML = "Image Updating...";
             
+            if (!currentFile) {
+                return;
+            }
+
             if (liveUpdate == true){
                 previewContainer.classList.remove('hidden');
             } else {
                 previewContainer.classList.add('hidden');
             }
+
+            document.body.style.cursor = 'wait';
+            isFetching = true;
 
             const formData = new FormData();
             formData.append('image', currentFile);
@@ -60,6 +74,18 @@
             })
             .catch(error => {
                 console.error('Error:', error);
+                document.body.style.cursor = 'pointer';
+            })
+            .finally(() => {
+                isFetching = false;
+                if (isLastPass == false){
+                    updatePreview(true);
+                    isLastPass = true;
+                } else {
+                    isLastPass = false;
+                    document.getElementById('preview-label-text').innerHTML = "Image Preview";
+                }
+                
             });
         }
     </script>
