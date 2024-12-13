@@ -19,7 +19,6 @@
     </form>
     <div id="preview-container" class="mt-8 hidden">
         <h2 class="text-xl font-semibold mb-4 text-blue-700">Image Preview</h2>
-         <div id="loading-message" class="hidden">Processing...</div>
         <img id="preview-image" src="" alt="Blurred Image Preview" class="max-w-full rounded border border-gray-300">
     </div>
     <script>
@@ -34,11 +33,12 @@
             const previewContainer = document.getElementById('preview-container');
             const previewImage = document.getElementById('preview-image');
             const blurAmount = document.getElementById('blur').value;
-            const loadingMessage = document.getElementById('loading-message');
             
-            loadingMessage.classList.remove('hidden');
-            previewImage.classList.add('hidden');
-            previewContainer.classList.remove('hidden');
+            if (liveUpdate == true){
+                previewContainer.classList.remove('hidden');
+            } else {
+                previewContainer.classList.add('hidden');
+            }
 
             const formData = new FormData();
             formData.append('image', currentFile);
@@ -52,16 +52,14 @@
             .then(data => {
                  if (data.error) {
                     console.error('Error:', data.error);
-                     loadingMessage.classList.add('hidden');
                 } else {
                     previewImage.src = 'data:image/png;base64,' + data.image;
-                    previewImage.classList.remove('hidden');
-                    loadingMessage.classList.add('hidden');
+                    document.body.style.cursor = 'pointer';
+                    previewContainer.classList.remove('hidden');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                 loadingMessage.classList.add('hidden');
             });
         }
     </script>

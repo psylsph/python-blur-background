@@ -75,11 +75,8 @@ def index():
 
                 background_removed = remove_background_from_image(resized_image.copy())
                 blurred_image = blur_image(resized_image.copy(), blur_amount)
-
                 
                 combined_image = combine_images(background_removed, blurred_image)
-
-
                 
                 output_filename = f'combined_{unique_filename}'
                 output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
@@ -136,4 +133,4 @@ def favicon():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=80)
