@@ -5,17 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Processor</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+        .bg-blue-gradient {
+            background: linear-gradient(135deg, #60a5fa 0%, #b2ebf2 100%);
+        }
+        .btn-primary {
+            background-color: #60a5fa;
+            border-color: #60a5fa;
+        }
+        .btn-primary:hover {
+            background-color: #4299e1;
+            border-color: #4299e1;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen font-sans">
-    <h1 class="text-3xl font-bold mb-6 text-blue-700">Image Processor</h1>
+<body class="bg-blue-gradient flex flex-col items-center justify-center min-h-screen font-sans">
+    <h1 class="text-5xl font-bold mb-6 text-white">Image Processor</h1>
     <form method="post" enctype="multipart/form-data" class="bg-white p-8 rounded shadow-md w-full max-w-md">
         <input type="file" name="image" accept="image/*" required class="mb-4 p-2 border rounded w-full">
 
         <div class="mb-4 flex items-center">
             <label for="blur" class="mr-2 text-gray-700">Blur Amount:</label>
-            <input type="range" name="blur" id="blur" min="0" max="30" step="1" value="{{ blur  }}" class="flex-1" oninput="updatePreview(true)">
+            <input type="range" name="blur" id="blur" min="0" max="30" step="1" value="{{ blur }}" class="flex-1" oninput="updatePreview(true)">
         </div>
-        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Process Image</button>
+        <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Process Image</button>
     </form>
     <div id="preview-container" class="mt-8 hidden items-center justify-center">
         <h2 class="text-xl font-semibold mb-4 text-blue-700" id="preview-label-text">Image Preview</h2>
