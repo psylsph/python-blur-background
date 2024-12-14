@@ -4,3 +4,4 @@ venv
 __py*
 .aider*
 .env
+ai-model

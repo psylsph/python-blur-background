@@ -1,8 +1,10 @@
+import tempfile
+import cv2
 from flask import Flask, render_template, request, send_file, jsonify
 from PIL import Image, ImageFilter
 import os
 import io
-from rembg import remove
+from dis_bg_remover import remove_background
 import uuid
 import base64
 
@@ -11,6 +13,7 @@ UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'output'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
+MODEL_PATH = "ai-model/isnet_dis.onnx"
 
 
 if not os.path.exists(UPLOAD_FOLDER):
@@ -24,16 +27,20 @@ def reduce_image_size(image, max_size=(800, 800)):
     image.thumbnail(max_size)
     return image
 
-def remove_background_from_image(image):
+def remove_background_from_image(image: Image):
     """Removes background from the image."""
-    image_bytes = io.BytesIO()
-    image.save(image_bytes, format='PNG')
-    image_bytes.seek(0)
-    output_bytes = remove(image_bytes.read())
-    output_image = Image.open(io.BytesIO(output_bytes))
+    with tempfile.TemporaryDirectory() as tmp:
+        source_image = os.path.join(tmp, 'source_image.png')
+        bg_removed_image = os.path.join(tempfile.gettempdir(), 'bg_removed_image.png')
+        #image_bytes = io.BytesIO()
+        image.save(source_image, format='PNG')
+        #image_bytes.seek(0)
+        extracted_img, mask = remove_background(MODEL_PATH, source_image)
+        cv2.imwrite(bg_removed_image, extracted_img)
+        output_image = Image.open(bg_removed_image)
     return output_image
     
-def blur_image(image, blur_amount):
+def blur_image(image: Image, blur_amount):
     """Blurs the image."""
     return image.filter(ImageFilter.GaussianBlur(radius=blur_amount))
 
@@ -42,7 +49,7 @@ def combine_images(foreground_image, background_image):
     background_image.paste(foreground_image, (0, 0), foreground_image)
     return background_image
 
-def image_to_base64(image):
+def image_to_base64(image: Image):
     buffered = io.BytesIO()
     image.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
