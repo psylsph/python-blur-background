@@ -57,7 +57,7 @@ if not isfile(MODEL_PATH):
 uploaded_file = st.sidebar.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "heic"])
 blur_amount = st.sidebar.slider("Blur Amount", 0, 50, 25)
 if uploaded_file is not None:
-    with WandImage( filename=uploaded_file.name) as wand_image:
+    with WandImage( blob=uploaded_file.getvalue()) as wand_image:
         img_buffer = numpy.asarray(bytearray(wand_image.make_blob(format='png')), dtype='uint8')
         bytesio = io.BytesIO(img_buffer)
         image = PILImage.open(bytesio)
