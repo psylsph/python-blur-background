@@ -1,0 +1,4 @@
+﻿dis-bg-remover==0.1.2
+onnxruntime==1.20.1
+streamlit
+requests

@@ -1,0 +1,8 @@
+venv
+.venv
+*.jpeg
+__py*
+.aider*
+.env
+ai-model
+*.onnx
