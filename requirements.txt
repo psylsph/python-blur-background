@@ -1,8 +1,11 @@
-﻿dis-bg-remover==0.1.2
-onnxruntime==1.20.1
-streamlit
+﻿streamlit
 requests
 opencv-python-headless
 numpy
 Wand
 pillow
+transformers>=4.39.1
+torchvision
+scikit-image
+kornia
+timm
