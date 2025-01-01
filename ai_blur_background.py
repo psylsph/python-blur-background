@@ -1,41 +1,36 @@
+import cv2
+import tempfile
 from wand.image import Image as WandImage
 from PIL import Image as PILImage
 from PIL import ImageFilter
 import numpy
+import os
+import requests
+from os.path import isfile
 import io
+from dis_bg_remover import remove_background
 import base64
 import streamlit as st
-import torch
-from torchvision import transforms
-from transformers import AutoModelForImageSegmentation
+
+
+MODEL_PATH = 'isnet_dis.onnx'
+
+def download_model(url):
+    response = requests.get(url)
+    with open(MODEL_PATH, mode="wb") as file:
+        file.write(response.content)
+    print(f"Downloaded file {MODEL_PATH}")
 
 def remove_background_from_image(image: PILImage):
     """Removes background from the image."""
-    model = AutoModelForImageSegmentation.from_pretrained('briaai/RMBG-2.0', trust_remote_code=True)
-    torch.set_float32_matmul_precision(['high', 'highest'][0])
-    model.to('cpu')
-    model.eval()
-   
-
-    # Data settings
-    image_size = (1024, 1024)
-    transform_image = transforms.Compose([
-        transforms.Resize(image_size),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
-
-
-    input_images = transform_image(image).unsqueeze(0).to('cpu')
-
-    # Prediction
-    with torch.no_grad():
-        preds = model(input_images)[-1].sigmoid().cpu()
-    pred = preds[0].squeeze()
-    pred_pil = transforms.ToPILImage()(pred)
-    mask = pred_pil.resize(image.size)
-    image.putalpha(mask)
-    return image
+    with tempfile.TemporaryDirectory() as tmp:
+        source_image = os.path.join(tmp, 'source_image.png')
+        bg_removed_image = os.path.join(tempfile.gettempdir(), 'bg_removed_image.png')
+        image.save(source_image, format='PNG')
+        extracted_img, mask = remove_background(MODEL_PATH, source_image)
+        cv2.imwrite(bg_removed_image, extracted_img)
+        output_image = PILImage.open(bg_removed_image)
+    return output_image
     
 def blur_image(image: PILImage, blur_amount):
     """Blurs the image."""
@@ -53,10 +48,13 @@ def image_to_base64(image: PILImage):
     return img_str
 
 
-st.set_page_config(page_title="AI Blur Background App", page_icon=":material/star_half:", initial_sidebar_state="expanded")
-st.markdown("#### AI Blur Background App")
+st.set_page_config(page_title="AI Blur Background", page_icon=":camera:")
+if not isfile(MODEL_PATH):
+    with st.spinner("Downloading model..."):
+        download_model("https://huggingface.co/stoned0651/isnet_dis.onnx/resolve/main/isnet_dis.onnx")
+        st.write("Model downloaded.")
 
-uploaded_file = st.sidebar.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "heic"])
+uploaded_file = st.sidebar.file_uploader("Select an image...", type=["jpg", "jpeg", "png", "heic"])
 blur_amount = st.sidebar.slider("Blur Amount", 0, 50, 25)
 if uploaded_file is not None:
     with WandImage( blob=uploaded_file.getvalue()) as wand_image:
@@ -64,15 +62,14 @@ if uploaded_file is not None:
         bytesio = io.BytesIO(img_buffer)
         image = PILImage.open(bytesio)
         st.image(image, caption="Uploaded Image", use_container_width=True)
-        st.write("")
+
         with st.spinner("Removing background..."):
             background_removed = remove_background_from_image(image.copy())
             st.image(background_removed, caption="Background Removed", use_container_width=True)
         blurred_image = blur_image(image.copy(), blur_amount)
         with st.spinner("Combining images..."):
             combined_image = combine_images(background_removed, blurred_image)
-            st.image(combined_image, caption="Final Image", use_container_width=True)
-        st.write("")
-        combined_image.convert('RGB').save('blur_background_image.jpg')
-        with open('blur_background_image.jpg', 'rb') as f:
-            st.download_button('Download File', f, file_name='blur_background_image.jpg', mime='image/jpeg')
+            st.image(combined_image, caption="Combined Image", use_container_width=True)
+        combined_image.convert('RGB').save('combined_image.jpg')
+        with open('combined_image.jpg', 'rb') as f:
+            st.download_button('Download File', f, file_name='combined_image.jpg', mime='image/jpeg')
