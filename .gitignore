@@ -1,6 +1,7 @@
 venv
 .venv
 *.jpeg
+*.jpg
 __py*
 .aider*
 .env

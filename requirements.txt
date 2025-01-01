@@ -1,11 +1,13 @@
 ﻿streamlit
 requests
-opencv-python-headless
-numpy
 Wand
-pillow
-transformers>=4.39.1
+torch
 torchvision
+pillow
+numpy
+typing
 scikit-image
+huggingface_hub
+transformers>=4.39.1
 kornia
 timm

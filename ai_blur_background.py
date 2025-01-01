@@ -2,22 +2,12 @@ from wand.image import Image as WandImage
 from PIL import Image as PILImage
 from PIL import ImageFilter
 import numpy
-import requests
-from os.path import isfile
 import io
 import base64
 import streamlit as st
 import torch
 from torchvision import transforms
 from transformers import AutoModelForImageSegmentation
-
-MODEL_PATH = 'isnet_dis.onnx'
-
-def download_model(url):
-    response = requests.get(url)
-    with open(MODEL_PATH, mode="wb") as file:
-        file.write(response.content)
-    print(f"Downloaded file {MODEL_PATH}")
 
 def remove_background_from_image(image: PILImage):
     """Removes background from the image."""
@@ -63,12 +53,8 @@ def image_to_base64(image: PILImage):
     return img_str
 
 
-st.set_page_config(layout="wide")
-st.markdown("#### AI Blur Background")
-if not isfile(MODEL_PATH):
-    with st.spinner("Downloading model..."):
-        download_model("https://huggingface.co/stoned0651/isnet_dis.onnx/resolve/main/isnet_dis.onnx")
-        st.write("Model downloaded.")
+st.set_page_config(page_title="AI Blur Background App", page_icon=":material/star_half:", initial_sidebar_state="expanded")
+st.markdown("#### AI Blur Background App")
 
 uploaded_file = st.sidebar.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "heic"])
 blur_amount = st.sidebar.slider("Blur Amount", 0, 50, 25)
