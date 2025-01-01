@@ -50,9 +50,9 @@ def image_to_base64(image: PILImage):
 
 st.set_page_config(page_title="AI Blur Background", page_icon=":camera:")
 if not isfile(MODEL_PATH):
-    with st.spinner("Downloading model..."):
+    with st.spinner("Downloading AI Model..."):
         download_model("https://huggingface.co/stoned0651/isnet_dis.onnx/resolve/main/isnet_dis.onnx")
-        st.write("Model downloaded.")
+        st.write("AI Model Downloaded!")
 
 uploaded_file = st.sidebar.file_uploader("Select an image...", type=["jpg", "jpeg", "png", "heic"])
 blur_amount = st.sidebar.slider("Blur Amount", 0, 50, 25)
