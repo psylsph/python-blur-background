@@ -54,7 +54,7 @@ if "remove_background" not in st.session_state:
     st.session_state["remove_background"] = True
 
 st.session_state["uploaded_file"] = st.file_uploader("**Select an image...**", type=["jpg", "jpeg", "png", "heic"], on_change=enable_remove_background)
-model_name = st.selectbox("**Select Model**", sessions_names, index=sessions_names.index("u2net_human_seg"), on_change=enable_remove_background)
+model_name = st.selectbox("**Select Model**", sessions_names, index=sessions_names.index("u2net"), on_change=enable_remove_background)
 blur_amount = st.slider("**Blur Amount**", 0, 50, 25, on_change=disable_remove_background)
 
 if st.session_state["uploaded_file"] is not None:
