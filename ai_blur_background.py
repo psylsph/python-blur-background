@@ -5,32 +5,21 @@ from PIL import Image as PILImage
 from PIL import ImageFilter
 import numpy
 import os
-import requests
-from os.path import isfile
 import io
-from dis_bg_remover import remove_background
+from rembg import new_session, remove
 import base64
 import streamlit as st
 
-
-MODEL_PATH = 'isnet_dis.onnx'
-
-def download_model(url):
-    response = requests.get(url)
-    with open(MODEL_PATH, mode="wb") as file:
-        file.write(response.content)
-    print(f"Downloaded file {MODEL_PATH}")
 
 def remove_background_from_image(image: PILImage):
     """Removes background from the image."""
     with tempfile.TemporaryDirectory() as tmp:
         source_image = os.path.join(tmp, 'source_image.png')
-        bg_removed_image = os.path.join(tempfile.gettempdir(), 'bg_removed_image.png')
-        image.save(source_image, format='PNG')
-        extracted_img, mask = remove_background(MODEL_PATH, source_image)
-        cv2.imwrite(bg_removed_image, extracted_img)
-        output_image = PILImage.open(bg_removed_image)
-    return output_image
+        image.save(source_image)
+        model_name = "isnet-general-use"
+        session = new_session(model_name)
+        output = remove(PILImage.open(source_image), session=session)
+    return output
     
 def blur_image(image: PILImage, blur_amount):
     """Blurs the image."""
@@ -49,13 +38,9 @@ def image_to_base64(image: PILImage):
 
 
 st.set_page_config(page_title="AI Blur Background", page_icon=":camera:")
-if not isfile(MODEL_PATH):
-    with st.spinner("Downloading AI Model..."):
-        download_model("https://huggingface.co/stoned0651/isnet_dis.onnx/resolve/main/isnet_dis.onnx")
-        st.write("AI Model Downloaded!")
 
-uploaded_file = st.sidebar.file_uploader("Select an image...", type=["jpg", "jpeg", "png", "heic"])
-blur_amount = st.sidebar.slider("Blur Amount", 0, 50, 25)
+uploaded_file = st.file_uploader("**Select an image...**", type=["jpg", "jpeg", "png", "heic"])
+blur_amount = st.slider("**Blur Amount**", 0, 50, 25)
 if uploaded_file is not None:
     with WandImage( blob=uploaded_file.getvalue()) as wand_image:
         img_buffer = numpy.asarray(bytearray(wand_image.make_blob(format='png')), dtype='uint8')
