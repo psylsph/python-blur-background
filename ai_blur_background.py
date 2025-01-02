@@ -6,6 +6,7 @@ import numpy
 import os
 import io
 from rembg import new_session, remove
+from rembg.sessions import sessions_names
 import base64
 import streamlit as st
 
@@ -52,13 +53,13 @@ st.html("""
 if "remove_background" not in st.session_state:
     st.session_state["remove_background"] = True
 
-uploaded_file = st.file_uploader("**Select an image...**", type=["jpg", "jpeg", "png", "heic"], on_change=enable_remove_background)
-model_name = st.selectbox("**Select Model**", ["bria-rmbg", "u2net"], index=1, on_change=enable_remove_background)
+st.session_state["uploaded_file"] = st.file_uploader("**Select an image...**", type=["jpg", "jpeg", "png", "heic"], on_change=enable_remove_background)
+model_name = st.selectbox("**Select Model**", sessions_names, index=sessions_names.index("u2net_human_seg"), on_change=enable_remove_background)
 blur_amount = st.slider("**Blur Amount**", 0, 50, 25, on_change=disable_remove_background)
 
-if uploaded_file is not None:
+if st.session_state["uploaded_file"] is not None:
 
-    with WandImage( blob=uploaded_file.getvalue()) as wand_image:
+    with WandImage( blob=st.session_state["uploaded_file"].getvalue()) as wand_image:
         
         preview_width = 300
 
@@ -82,5 +83,7 @@ if uploaded_file is not None:
         
         st.session_state["remove_background"] = False
         
-        with open('combined_image.jpg', 'rb') as f:
-            st.download_button('Download File', f, file_name='combined_image.jpg', mime='image/jpeg')
+        with tempfile.TemporaryDirectory() as tmp:
+            source_image = os.path.join(tmp, 'blurred_' + st.session_state["uploaded_file"].name + 'jpg')
+            with open('combined_image.jpg', 'rb') as f:
+                st.download_button('Download File', f, file_name='combined_image.jpg', mime='image/jpeg')
