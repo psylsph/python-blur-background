@@ -43,7 +43,7 @@ st.set_page_config(page_title="AI Blur Background", page_icon=":camera:", layout
 st.html("""
     <style>
         .stMainBlockContainer {
-            max-width:25rem;
+            max-width:21rem;
         }
     </style>
     """
@@ -60,7 +60,7 @@ if uploaded_file is not None:
 
     with WandImage( blob=uploaded_file.getvalue()) as wand_image:
         
-        preview_width = 250
+        preview_width = 300
 
         img_buffer = numpy.asarray(bytearray(wand_image.make_blob(format='png')), dtype='uint8')
         bytesio = io.BytesIO(img_buffer)
