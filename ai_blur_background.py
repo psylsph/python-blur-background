@@ -49,6 +49,9 @@ st.html("""
     """
 )
 
+if "remove_background" not in st.session_state:
+    st.session_state["remove_background"] = True
+
 uploaded_file = st.file_uploader("**Select an image...**", type=["jpg", "jpeg", "png", "heic"], on_change=enable_remove_background)
 model_name = st.selectbox("**Select Model**", ["bria-rmbg", "u2net"], index=1, on_change=enable_remove_background)
 blur_amount = st.slider("**Blur Amount**", 0, 50, 25, on_change=disable_remove_background)
